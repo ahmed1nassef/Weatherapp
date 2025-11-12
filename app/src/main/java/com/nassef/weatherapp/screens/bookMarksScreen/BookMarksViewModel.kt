@@ -22,7 +22,7 @@ data class UiState(
     val isRefreshing: Boolean = false,
     val articles: List<Article> = emptyList(),
     val error: String? = null,
-    val category: String = defaultCategory,
+    val category: Int = defaultCategory,
     val isArticleAdded: Boolean = false,
     val isArticleDeleted: Boolean = false
 )
@@ -39,7 +39,7 @@ class BookMarksViewModel @Inject constructor(
     private val _isDeleted = MutableStateFlow(false)
     private val _articlesList = MutableStateFlow<List<Article>>(emptyList())
     private val _error = MutableStateFlow<String?>(null)
-    private val _category = MutableStateFlow<String>(defaultCategory)
+    private val _category = MutableStateFlow<Int>(defaultCategory)
     private var _searchJob: Job? = null
 
     val uiState = combine(

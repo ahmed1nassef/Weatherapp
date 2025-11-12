@@ -37,7 +37,7 @@ class MainScreenViewModel @Inject constructor(
     private val _isRefreshing = MutableStateFlow(false)
     private val _articlesList = MutableStateFlow<List<Article>>(emptyList())
     private val _error = MutableStateFlow<String?>(null)
-    private val _category = MutableStateFlow<String>(defaultCategory)
+    private val _category = MutableStateFlow<Int>(defaultCategory)
     private var _searchJob: Job? = null
 
 
@@ -133,13 +133,13 @@ class MainScreenViewModel @Inject constructor(
         uiManager.sendMessage(msg)
     }
 
-    fun searchCategory(searchQuary: String) {
+    fun searchCategory(searchQuary: Int) {
         _isLoading.value = true
         if (searchQuary == defaultCategory)
             getAllArticlesOnline()
         else {
             _category.value = searchQuary
-            searchArticle(searchQuary)
+            searchArticle(searchQuary.toString())
         }
     }
 

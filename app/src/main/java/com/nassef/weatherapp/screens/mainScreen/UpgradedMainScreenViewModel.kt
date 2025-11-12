@@ -30,9 +30,7 @@ data class UiState(
     val isRefreshing: Boolean = false,
     val articles: List<Article> = emptyList(),
     val error: String? = null,
-    val category: String = defaultCategory,
-    val isArticleAdded: Boolean = false,
-    val isArticleDeleted: Boolean = false
+    val category: Int = defaultCategory
 )
 
 @HiltViewModel
@@ -47,13 +45,11 @@ class UpgradedMainScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
-    private val _isArticleAdded = MutableStateFlow(false)
-    private val _isArticleDeleted = MutableStateFlow(false)
     private val _articlesList = MutableStateFlow<List<Article>>(emptyList())
 
     private val _bookMarkedArticles = MutableStateFlow<List<Article>>(emptyList())
     private val _error = MutableStateFlow<String?>(null)
-    private val _category = MutableStateFlow<String>(defaultCategory)
+    private val _category = MutableStateFlow<Int>(defaultCategory)
     private var _searchJob: Job? = null
 
     val uiState: StateFlow<UiState> =
@@ -62,20 +58,10 @@ class UpgradedMainScreenViewModel @Inject constructor(
             _articlesList,
             _bookMarkedArticles,
             _error,
-            _category,
-//            _isRefreshing,
+            _category
         ) { isLoading, rawArticles, bookmarkedArticles, error, category ->
             val updatedList: List<Article> = rawArticles.map { articleX ->
-                /* articleX.apply {
-                     publishedAt?.apply {
-                         timeFormatter.convertIsoToRelativeTime(isoTime = this)
-                     }
- //                    publishedAt = timeFormatter.convertIsoToRelativeTime(isoTime = publishedAt)
- //                    handleBookMarkedArticles(this)
-
-                 }*/
                 mapToUiDisplayedArticle(articleX, true)
-
             }
             UiState(
                 isLoading = isLoading,
@@ -100,7 +86,6 @@ class UpgradedMainScreenViewModel @Inject constructor(
 
     init {
         getBookMarkedArticles()
-//        getAllArticles()
     }
 
     private fun getAllArticles() {
@@ -241,9 +226,9 @@ class UpgradedMainScreenViewModel @Inject constructor(
         getAllArticles()
     }
 
-    fun searchCategory(searchQuary: String) {
-        _category.value = searchQuary
-        if (searchQuary == defaultCategory) {
+    fun searchCategory(searchQuary: String , categoryId: Int) {
+        _category.value = categoryId
+        if (categoryId == defaultCategory) {
             getAllArticles()
         } else {
             searchArticle(searchQuary)

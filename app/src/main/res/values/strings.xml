@@ -10,5 +10,6 @@
     <string name="home">Home</string>
     <string name="book_marked">BookMarked</string>
     <string name="settings_screen">Settings</string>
+    <string name="toolbar_title">Article app</string>
 
 </resources>

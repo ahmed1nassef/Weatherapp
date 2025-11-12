@@ -37,6 +37,7 @@ import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
 import androidx.compose.ui.res.colorResource
+import androidx.compose.ui.res.stringResource
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
@@ -48,16 +49,10 @@ import com.nassef.weatherapp.navigation.WeatherScreens
 
 
 
-//@Preview(
-//    name = "main screen",
-//    showBackground = true,
-//    uiMode = UI_MODE_NIGHT_YES
-//)
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
     navController: NavHostController ,
-//    viewModel: MainScreenViewModel = hiltViewModel(),
     viewModel: UpgradedMainScreenViewModel = hiltViewModel()
 ) {
     val searchText = rememberSaveable {
@@ -90,9 +85,10 @@ fun MainScreen(
                 horizontalArrangement = Arrangement.SpaceEvenly*/
             ) {
                 items(categoriesList) {
-                    CategoriesRow(modifier, it, uiState.category == it){
+                    val articleCat = stringResource(it)
+                    CategoriesRow(modifier, articleCat , uiState.category == it){
                         searchText.value =""
-                        viewModel.searchCategory(it)
+                        viewModel.searchCategory(articleCat , it)
                     }
                 }
             }
@@ -106,13 +102,11 @@ fun MainScreen(
                     CircularProgressIndicator()
                 }
             } else if (uiState.articles.isEmpty().not()) {
-                ArtcilesSection(modifier, uiState, viewModel , navController = navController) {
+                ArticlesSection(modifier, uiState, viewModel , navController = navController) {
                     searchText.value = ""
                     viewModel.refreshArticles()
                 }
-            } /*else if (uiState.error.isNullOrEmpty().not()) {
-                viewModel.sendMessage(uiState.error!!)
-            }*/
+            }
         }
 
     }
@@ -145,7 +139,7 @@ fun ArticleSearchSection(modifier: Modifier, searchText: String, onValueChanged:
 }
 
 @Composable
-private fun ArtcilesSection(
+private fun ArticlesSection(
     modifier: Modifier,
     uiState: UiState,
     viewModel: UpgradedMainScreenViewModel,
@@ -195,7 +189,6 @@ private fun ArtcilesSection(
         LazyColumn(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(10.dp),
-//                verticalArrangement = Arrangement.SpaceAround,
             horizontalAlignment = Alignment.CenterHorizontally,
             state = rememberLazyListState()
         ) {
@@ -207,13 +200,8 @@ private fun ArtcilesSection(
                     val encodedUrl = java.net.URLEncoder.encode(article.url, "UTF-8")
 
                     navController.navigate("$detailsScreen/${article.id}/${encodedUrl}")
-//                    navController.navigate("$detailsScreen/${encodedUrl}")
                 } ){
                     viewModel.toggleArticleBookMark(article)
-                   /* if(article.isBookMarked)
-                        viewModel.deleteBookMarkedArticle(article)
-                    else
-                        viewModel.addArticleToBookMarks(article)*/
 
                 }
             }

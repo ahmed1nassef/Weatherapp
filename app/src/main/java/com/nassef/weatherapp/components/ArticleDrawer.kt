@@ -25,6 +25,7 @@ import androidx.compose.runtime.rememberCoroutineScope
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.painter.Painter
+import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.dimensionResource
 import androidx.compose.ui.res.painterResource
 import androidx.compose.ui.res.stringResource
@@ -43,7 +44,6 @@ fun AppModalDrawer(
     drawerState: DrawerState,
     currentRoute: String,
     navController: NavHostController,
-//    navigationActions: TodoNavigationActions,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     content: @Composable () -> Unit
 ) {
@@ -55,8 +55,6 @@ fun AppModalDrawer(
                 AppDrawer(
                     currentRoute = currentRoute,
                     navController = navController,
-                    navigateToTasks = { /*navigationActions.navigateToTasks()*/ },
-                    navigateToStatistics = { /*navigationActions.navigateToStatistics()*/ },
                     closeDrawer = { coroutineScope.launch { drawerState.close() } }
                 )
             }
@@ -71,8 +69,6 @@ fun AppModalDrawer(
 private fun AppDrawer(
     currentRoute: String,
     navController: NavHostController,
-    navigateToTasks: () -> Unit,
-    navigateToStatistics: () -> Unit,
     closeDrawer: () -> Unit,
     modifier: Modifier = Modifier
 ) {
@@ -85,7 +81,7 @@ private fun AppDrawer(
                 label = stringResource(id = R.string.home),
                 isSelected = currentRoute == WeatherDestinations.ARTICLE_MAIN_ROUTE,
                 action = {
-                    navigateToTasks()
+                    navController.navigate(WeatherDestinations.ARTICLE_MAIN_ROUTE)
                     closeDrawer()
                 }
             )
@@ -94,7 +90,7 @@ private fun AppDrawer(
                 label = stringResource(id = R.string.book_marked),
                 isSelected = currentRoute == WeatherDestinations.BOOK_MARKS_SCREEN_ROUTE,
                 action = {
-                    navigateToStatistics()
+                    navController.navigate(WeatherDestinations.BOOK_MARKS_SCREEN_ROUTE)
                     closeDrawer()
                 }
             )
@@ -126,15 +122,15 @@ private fun DrawerHeader(
         verticalArrangement = Arrangement.Center,
         modifier = modifier
             .fillMaxWidth()
-//            .background(primaryDarkColor)
             .height(dimensionResource(id = R.dimen.header_height))
             .padding(dimensionResource(id = R.dimen.header_padding))
     ) {
         Image(
-            painter = painterResource(id = R.drawable.error_image),
+            painter = painterResource(id = R.drawable.placeholder_image),
             contentDescription =
                 stringResource(id = R.string.tasks_header_image_content_description),
-            modifier = Modifier.width(dimensionResource(id = R.dimen.header_image_width))
+            modifier = Modifier.width(dimensionResource(id = R.dimen.header_image_width)),
+            contentScale = ContentScale.FillWidth
         )
         Text(
             text = stringResource(id = R.string.navigation_view_header_title),

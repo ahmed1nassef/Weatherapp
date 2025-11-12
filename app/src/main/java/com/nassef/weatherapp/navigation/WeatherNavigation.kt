@@ -13,7 +13,6 @@ import androidx.navigation.NavType
 import androidx.navigation.compose.NavHost
 import androidx.navigation.compose.composable
 import androidx.navigation.navArgument
-import com.nassef.weatherapp.components.AppModalDrawer
 import com.nassef.weatherapp.navigation.WeatherDistArgs.ARTICLE_ID_NAV_ARG
 import com.nassef.weatherapp.navigation.WeatherDistArgs.ARTICLE_URL_NAV_ARG
 import com.nassef.weatherapp.screens.articleDeatilsScreen.ArticleDetailsScreen
@@ -32,10 +31,10 @@ fun WeatherNavGraph(
     currentRout : String,
     coroutineScope: CoroutineScope = rememberCoroutineScope(),
     drawerState: DrawerState = rememberDrawerState(initialValue = DrawerValue.Closed),
-    startDestination: String = WeatherDestinations.SPLASH_SCREEN_ROUTE,
+    startDestination: String = WeatherDestinations.SPLASH_SCREEN_ROUTE/*,
     navAction: WeatherNavigationActions = remember(navController) {
         WeatherNavigationActions(navController)
-    }
+    }*/
 ) {
 
 //    val currentNavBackStackEntry by navController.currentBackStackEntryAsState()
@@ -83,7 +82,7 @@ fun navAndPopUpTo(
 ) {
     navHostController.navigate(route) {
         popUpTo(popUpRoute) {
-            inclusive = true
+            inclusive = clearBackStack
         }
     }
 }

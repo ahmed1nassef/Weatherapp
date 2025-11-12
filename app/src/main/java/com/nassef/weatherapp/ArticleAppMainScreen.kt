@@ -36,8 +36,10 @@ import kotlinx.coroutines.launch
 
 @OptIn(ExperimentalMaterial3Api::class)
 @Composable
-fun ArticleAppMainScreen(modifier: Modifier = Modifier, uiManager: UiManager ,
-                         viewmodel: LandingScreenViewModel = hiltViewModel()) {
+fun ArticleAppMainScreen(
+    modifier: Modifier = Modifier, uiManager: UiManager,
+    viewmodel: LandingScreenViewModel = hiltViewModel()
+) {
     val isOpened by viewmodel.isOpened.collectAsState()
     var startDestination = WeatherDestinations.SPLASH_SCREEN_ROUTE
 
@@ -67,7 +69,7 @@ fun ArticleAppMainScreen(modifier: Modifier = Modifier, uiManager: UiManager ,
     LaunchedEffect(snackbarHostState) {
         coroutineScope.launch {
             uiManager.snackbarMessage.collect {
-                snackbarHostState.showSnackbar(it , duration = SnackbarDuration.Short)
+                snackbarHostState.showSnackbar(it, duration = SnackbarDuration.Short)
             }
         }
     }
@@ -104,7 +106,12 @@ fun ArticleAppMainScreen(modifier: Modifier = Modifier, uiManager: UiManager ,
             }
         }
     ) { contentPadding ->
-        AppModalDrawer(modifier = modifier.padding(contentPadding), drawerState = drawerState, currentRout, navController) {
+        AppModalDrawer(
+            modifier = modifier.padding(contentPadding),
+            drawerState = drawerState,
+            currentRout,
+            navController
+        ) {
 
             WeatherNavGraph(
                 modifier = modifier,

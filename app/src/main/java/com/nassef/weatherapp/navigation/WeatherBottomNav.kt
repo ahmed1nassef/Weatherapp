@@ -83,7 +83,7 @@ fun WeatherTopBar(
 ){
     if(isShowTopBar){
         TopAppBar(title = {
-            Text("Weather app")
+            Text(stringResource(R.string.toolbar_title))
         } , modifier = modifier , navigationIcon = {
             TooltipBox(
                 positionProvider =
@@ -137,9 +137,7 @@ fun WeatherBottomNav(
                             clearBackStack = true,
                             popUpRoute = WeatherDestinations.ARTICLE_MAIN_ROUTE
                         )
-//                        navController.navigate(route = destination.route)
                         onSelectedChange(index)
-//                        selectedDestination = index
                     },
                     icon = {
                         Icon(
