@@ -23,3 +23,4 @@ val categoriesList = listOf(
     R.string.games_category
 )
 val defaultCategory: Int = R.string.all_category
+const val NEWS_API_KEY_NAME = "NewsApiKey"

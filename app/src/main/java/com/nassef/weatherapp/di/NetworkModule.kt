@@ -1,5 +1,6 @@
 package com.nassef.weatherapp.di
 
+import android.os.Build
 import com.nassef.core.data.repository.remote.ApiService
 import com.nassef.core.data.repository.remote.RetrofitNetworkProvider
 import com.nassef.core.domain.repository.remote.INetworkProvider
@@ -13,6 +14,7 @@ import com.nassef.data.network.interceptors.APIKeyInterceptor
 import com.nassef.data.network.interceptors.AuthInterceptor
 import com.nassef.data.network.interceptors.CacheInterceptor
 import com.nassef.data.network.interceptors.RetryInterceptor
+import com.nassef.domain.utilities.NEWS_API_KEY_NAME
 import com.nassef.weatherapp.BuildConfig
 import dagger.Module
 import dagger.Provides
@@ -22,6 +24,7 @@ import okhttp3.OkHttpClient
 import retrofit2.Retrofit
 import retrofit2.converter.gson.GsonConverterFactory
 import java.util.concurrent.TimeUnit
+import javax.inject.Named
 import javax.inject.Singleton
 
 
@@ -64,9 +67,15 @@ object NetworkModule {
     @Singleton
     fun provideRetryInterceptor(): RetryInterceptor = RetryInterceptor(Constants.MAX_RETRY_ATTEMPTS)
 
-    @Provides
+    /*@Provides
     @Singleton
-    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()
+    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()*/
+
+    @Provides
+    @Named(NEWS_API_KEY_NAME)
+    fun provideApiKey(): String {
+        return BuildConfig.API_KEY
+    }
 
     @Provides
     @Singleton

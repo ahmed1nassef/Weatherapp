@@ -1,3 +1,5 @@
+import java.util.Properties
+
 plugins {
     alias(libs.plugins.android.application)
     alias(libs.plugins.kotlin.android)
@@ -6,6 +8,12 @@ plugins {
     id("com.google.dagger.hilt.android")
     alias(libs.plugins.jetbrains.kotlin.serialization)
 }
+//val secretProps = java.util.Properties()
+val secretProps = Properties()
+rootProject.file("local.properties").takeIf { it.exists() }?.inputStream()?.use {
+    secretProps.load(it)
+}
+val newsApiKey = secretProps.getProperty("api_key", "DEFAULT_KEY_FOR_LOCAL")
 
 android {
     namespace = "com.nassef.weatherapp"
@@ -20,6 +28,7 @@ android {
 
         testInstrumentationRunner = "androidx.test.runner.AndroidJUnitRunner"
         buildConfigField("String", "BASE_URL", "\"https://newsapi.org/v2/\"")
+        buildConfigField("String", "API_KEY", newsApiKey)
 
     }
     android.buildFeatures.buildConfig = true

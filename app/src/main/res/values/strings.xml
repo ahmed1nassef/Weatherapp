@@ -1,5 +1,5 @@
 <resources>
-    <string name="app_name">WeatherApp</string>
+    <string name="app_name">ArticlesApp</string>
     <string name="main_screen_lable">Home</string>
     <string name="detail_screen_lable">article details</string>
     <string name="bookmarks_screen_lable">Bookmarks</string>
