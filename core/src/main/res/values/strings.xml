@@ -1,0 +1,5 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <string name="error_io_unexpected_message">UnExpected error occurs</string>
+    <string name="error_unexpected_message">unexpected error</string>
+</resources>

@@ -80,4 +80,6 @@ dependencies {
 
     //coroutines
     implementation(libs.kotlinx.coroutines.android)
+
+    implementation(project(":core"))
 }

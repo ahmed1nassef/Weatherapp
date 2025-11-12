@@ -92,6 +92,7 @@ dependencies {
 
 //    implementation project(path = ":domain")
     implementation(project(":domain"))
+    implementation(project(":core"))
 
     // data/build.gradle
     implementation(libs.gson)

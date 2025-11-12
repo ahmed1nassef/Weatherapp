@@ -1,7 +1,7 @@
 package com.nassef.data.network
 
 //import com.nassef.data.domain.Article
-import com.nassef.domain.entities.Article
+import com.nassef.domain.entities.ArticlesHolder
 import retrofit2.http.GET
 import retrofit2.http.Query
 
@@ -15,8 +15,8 @@ interface ArticlesApi {//response objectx
 //    )
 //    @GET("top-headlines?country=us")
     @GET("top-headlines")
-    suspend fun getArticles(@Query("country") country: String = "us"): Article
+    suspend fun getArticles(@Query("country") country: String = "us"): ArticlesHolder
 
     @GET("everything")
-    suspend fun searchArticles(@Query("q") searchTxt : String) : Article
+    suspend fun searchArticles(@Query("q") searchTxt : String) : ArticlesHolder
 }

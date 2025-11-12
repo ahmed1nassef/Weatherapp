@@ -1,6 +1,5 @@
 package com.nassef.weatherapp.screens.mainScreen
 
-import android.content.res.Configuration.UI_MODE_NIGHT_YES
 import androidx.compose.animation.core.Animatable
 import androidx.compose.animation.core.Spring
 import androidx.compose.animation.core.VectorConverter
@@ -9,25 +8,16 @@ import androidx.compose.foundation.clickable
 import androidx.compose.foundation.layout.Arrangement
 import androidx.compose.foundation.layout.Column
 import androidx.compose.foundation.layout.PaddingValues
-import androidx.compose.foundation.layout.Row
 import androidx.compose.foundation.layout.fillMaxSize
 import androidx.compose.foundation.layout.fillMaxWidth
-import androidx.compose.foundation.layout.height
 import androidx.compose.foundation.layout.padding
 import androidx.compose.foundation.lazy.LazyColumn
 import androidx.compose.foundation.lazy.LazyRow
 import androidx.compose.foundation.lazy.items
-import androidx.compose.foundation.rememberScrollState
+import androidx.compose.foundation.lazy.rememberLazyListState
 import androidx.compose.foundation.shape.RoundedCornerShape
-import androidx.compose.foundation.verticalScroll
-import androidx.compose.material.icons.Icons
-import androidx.compose.material.icons.filled.Add
-import androidx.compose.material3.Card
-import androidx.compose.material3.CardDefaults
 import androidx.compose.material3.CircularProgressIndicator
 import androidx.compose.material3.HorizontalDivider
-import androidx.compose.material3.Icon
-import androidx.compose.material3.IconButton
 import androidx.compose.material3.MaterialTheme
 import androidx.compose.material3.OutlinedTextField
 import androidx.compose.material3.OutlinedTextFieldDefaults
@@ -46,32 +36,29 @@ import androidx.compose.runtime.saveable.rememberSaveable
 import androidx.compose.ui.Alignment
 import androidx.compose.ui.Modifier
 import androidx.compose.ui.graphics.Color
-import androidx.compose.ui.layout.ContentScale
 import androidx.compose.ui.res.colorResource
-import androidx.compose.ui.res.painterResource
-import androidx.compose.ui.text.font.FontStyle
-import androidx.compose.ui.text.style.TextOverflow
-import androidx.compose.ui.tooling.preview.Preview
 import androidx.compose.ui.unit.dp
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.NavHostController
-import androidx.navigation.compose.rememberNavController
-import coil3.compose.AsyncImage
-import com.nassef.domain.entities.ArticleX
 import com.nassef.domain.utilities.categoriesList
 import com.nassef.weatherapp.R
+import com.nassef.weatherapp.components.ArticleRow
+import com.nassef.weatherapp.navigation.WeatherScreens
 
 
-@Preview(
-    name = "main screen",
-    showBackground = true,
-    uiMode = UI_MODE_NIGHT_YES
-)
+
+
+//@Preview(
+//    name = "main screen",
+//    showBackground = true,
+//    uiMode = UI_MODE_NIGHT_YES
+//)
 @Composable
 fun MainScreen(
     modifier: Modifier = Modifier,
-    navController: NavHostController = rememberNavController(),
-    viewModel: MainScreenViewModel = hiltViewModel()
+    navController: NavHostController ,
+//    viewModel: MainScreenViewModel = hiltViewModel(),
+    viewModel: UpgradedMainScreenViewModel = hiltViewModel()
 ) {
     val searchText = rememberSaveable {
         mutableStateOf("")
@@ -104,6 +91,7 @@ fun MainScreen(
             ) {
                 items(categoriesList) {
                     CategoriesRow(modifier, it, uiState.category == it){
+                        searchText.value =""
                         viewModel.searchCategory(it)
                     }
                 }
@@ -118,13 +106,13 @@ fun MainScreen(
                     CircularProgressIndicator()
                 }
             } else if (uiState.articles.isEmpty().not()) {
-                ArtcilesSection(modifier, uiState, viewModel) {
+                ArtcilesSection(modifier, uiState, viewModel , navController = navController) {
                     searchText.value = ""
                     viewModel.refreshArticles()
                 }
-            } else if (uiState.error.isNullOrEmpty().not()) {
+            } /*else if (uiState.error.isNullOrEmpty().not()) {
                 viewModel.sendMessage(uiState.error!!)
-            }
+            }*/
         }
 
     }
@@ -160,7 +148,8 @@ fun ArticleSearchSection(modifier: Modifier, searchText: String, onValueChanged:
 private fun ArtcilesSection(
     modifier: Modifier,
     uiState: UiState,
-    viewModel: MainScreenViewModel,
+    viewModel: UpgradedMainScreenViewModel,
+    navController: NavHostController,
     onRefreshArticles: () -> Unit
 ) {
     val refreshState = rememberPullToRefreshState()
@@ -207,10 +196,26 @@ private fun ArtcilesSection(
             modifier = modifier.fillMaxSize(),
             contentPadding = PaddingValues(10.dp),
 //                verticalArrangement = Arrangement.SpaceAround,
-            horizontalAlignment = Alignment.CenterHorizontally
+            horizontalAlignment = Alignment.CenterHorizontally,
+            state = rememberLazyListState()
         ) {
-            items(uiState.articles) { article ->
-                ArticleRow(modifier, article, viewModel)
+            items(items = uiState.articles , key = {
+                it.url
+            }) { article ->
+                ArticleRow(modifier, article, onArticleClick = {
+                    val detailsScreen = WeatherScreens.ARTICLE_DETAILS_SCREEN
+                    val encodedUrl = java.net.URLEncoder.encode(article.url, "UTF-8")
+
+                    navController.navigate("$detailsScreen/${article.id}/${encodedUrl}")
+//                    navController.navigate("$detailsScreen/${encodedUrl}")
+                } ){
+                    viewModel.toggleArticleBookMark(article)
+                   /* if(article.isBookMarked)
+                        viewModel.deleteBookMarkedArticle(article)
+                    else
+                        viewModel.addArticleToBookMarks(article)*/
+
+                }
             }
         }
     }
@@ -219,67 +224,6 @@ private fun ArtcilesSection(
 }
 
 
-@Composable
-private fun ArticleRow(modifier: Modifier, article: ArticleX, viewModel: MainScreenViewModel) {
-    Card(
-        modifier = modifier
-            .fillMaxSize()
-            .padding(10.dp),
-        colors = CardDefaults.cardColors(containerColor = Color.White)
-    ) {
-        Column(
-            modifier = modifier.fillMaxSize(),
-            horizontalAlignment = Alignment.CenterHorizontally
-        ) {
-            AsyncImage(
-                modifier = modifier
-                    .fillMaxWidth()
-                    .height(150.dp),
-                contentDescription = "image",
-//                                clipToBounds = true,
-                model = article.urlToImage,
-                placeholder = painterResource(R.drawable.placeholder_image),
-//                                error = painterResource(R.drawable.error_image),
-                error = painterResource(R.drawable.placeholder_image),
-                contentScale = ContentScale.FillBounds,
-                onError = {
-                    print(it.result)
-                }
-            )
-            Column(modifier = modifier.padding(5.dp)) {
-                Row(modifier = modifier.fillMaxWidth()) {
-                    Text(modifier = modifier.padding(5.dp), text = "TechCrunch", color = Color.Gray)
-                    Text(modifier = modifier.padding(5.dp), text = "• ", color = Color.Gray)
-                    Text(
-                        modifier = modifier.padding(5.dp),
-                        text = article.publishedAt,
-                        color = Color.Gray
-                    )
-                }
-                Text(
-                    modifier = modifier.padding(5.dp),
-                    text = article.title,
-                    fontStyle = FontStyle.Italic,
-                    overflow = TextOverflow.StartEllipsis
-                )
-                Row(
-                    modifier = modifier.fillMaxWidth(),
-                    horizontalArrangement = Arrangement.SpaceBetween,
-                    verticalAlignment = Alignment.CenterVertically
-                ) {
-                    Text(modifier = modifier.padding(5.dp), text = "5 min read")
-                    IconButton(onClick = {
-                        viewModel.addArticleToBookMarks(article)
-                    }) {
-                        Icon(imageVector = Icons.Default.Add, contentDescription = "add bookmark")
-                    }
-
-                }
-            }
-
-        }
-    }
-}
 
 @Composable
 private fun CategoriesRow(modifier: Modifier, string: String, isSelected: Boolean , onCategoryClick : ()-> Unit) {

@@ -1,46 +1,29 @@
 package com.nassef.weatherapp.screens.mainScreen
 
-import androidx.compose.runtime.collectAsState
-import androidx.compose.runtime.mutableStateOf
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
 import com.nassef.domain.entities.Article
-import com.nassef.domain.entities.ArticleX
 import com.nassef.domain.useCases.AddBookMarkedArticleUseCase
 import com.nassef.domain.useCases.GetAllArticlesUseCase
 import com.nassef.domain.useCases.SearchForArticleUseCase
 import com.nassef.domain.utilities.Results
 import com.nassef.domain.utilities.WhileUiSubscribed
-import com.nassef.domain.utilities.categoriesList
 import com.nassef.domain.utilities.defaultCategory
 import com.nassef.weatherapp.utils.TimeFormatter
 import com.nassef.weatherapp.utils.UiManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
-import kotlinx.coroutines.channels.Channel
 import kotlinx.coroutines.delay
-import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
-import kotlinx.coroutines.flow.SharingStarted
 import kotlinx.coroutines.flow.StateFlow
-import kotlinx.coroutines.flow.asStateFlow
-import kotlinx.coroutines.flow.callbackFlow
 import kotlinx.coroutines.flow.combine
-import kotlinx.coroutines.flow.flowOf
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-data class UiState(
-    val isLoading: Boolean = false,
-    val isRefreshing: Boolean = false,
-    val articles: List<ArticleX> = emptyList(),
-    val error: String? = null,
-    val category: String = defaultCategory,
-    val isArticleAdded: Boolean = false
-)
+
 
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
@@ -52,7 +35,7 @@ class MainScreenViewModel @Inject constructor(
 ) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
-    private val _articlesList = MutableStateFlow<List<ArticleX>>(emptyList())
+    private val _articlesList = MutableStateFlow<List<Article>>(emptyList())
     private val _error = MutableStateFlow<String?>(null)
     private val _category = MutableStateFlow<String>(defaultCategory)
     private var _searchJob: Job? = null
@@ -62,9 +45,12 @@ class MainScreenViewModel @Inject constructor(
         combine(_isLoading, _articlesList, _error, _category, _isRefreshing) {
 
 //        if (_articlesList.value.isNullOrEmpty().not()) {
-            val updatedList: List<ArticleX> = _articlesList.value.map { articleX ->
+            val updatedList: List<Article> = _articlesList.value.map { articleX ->
                 articleX.apply {
-                    publishedAt = timeFormatter.convertIsoToRelativeTime(isoTime = publishedAt)
+                    publishedAt?.apply {
+                        timeFormatter.convertIsoToRelativeTime(isoTime = this)
+                    }
+//                    publishedAt = timeFormatter.convertIsoToRelativeTime(isoTime = publishedAt)
                 }
             }
 //            UiState(_isLoading.value, updatedList, _error.value)
@@ -99,7 +85,7 @@ class MainScreenViewModel @Inject constructor(
                 val articlesResponse = useCase.invoke("us")
                 when (articlesResponse) {
                     Results.Loading -> _isLoading.value = true
-                    is Results.Success<List<ArticleX>> -> {
+                    is Results.Success<List<Article>> -> {
                         _articlesList.value = articlesResponse.data
                         _isLoading.value = false
                         _isRefreshing.value = false
@@ -125,9 +111,9 @@ class MainScreenViewModel @Inject constructor(
         }
     }
 
-    fun addArticleToBookMarks(article: ArticleX) {
+    fun addArticleToBookMarks(article: Article) {
         _isLoading.value = true
-        val originalArticle: ArticleX? = _articlesList.value.firstOrNull {
+        val originalArticle: Article? = _articlesList.value.firstOrNull {
             it.id == article.id
         }
         hundleScope {

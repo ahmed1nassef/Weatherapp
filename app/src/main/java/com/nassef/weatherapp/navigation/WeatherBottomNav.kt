@@ -1,20 +1,29 @@
 package com.nassef.weatherapp.navigation
 
+
 import androidx.compose.foundation.layout.padding
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
 import androidx.compose.material3.ExperimentalMaterial3Api
 import androidx.compose.material3.Icon
+import androidx.compose.material3.IconButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
+import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
 import androidx.compose.material3.Text
+import androidx.compose.material3.TooltipAnchorPosition
+import androidx.compose.material3.TooltipBox
+import androidx.compose.material3.TooltipDefaults
 import androidx.compose.material3.TopAppBar
+import androidx.compose.material3.rememberTooltipState
 import androidx.compose.runtime.Composable
 import androidx.compose.runtime.LaunchedEffect
 import androidx.compose.runtime.getValue
@@ -70,14 +79,42 @@ fun WeatherTopBar(
     isShowTopBar: Boolean,
     selectedDestination: Int,
     navController: NavHostController,
-    onSelectedChange: (Int) -> Unit
+    onOpenDrawer: () -> Unit
 ){
     if(isShowTopBar){
         TopAppBar(title = {
             Text("Weather app")
         } , modifier = modifier , navigationIcon = {
-            Icon(Icons.Default.AcUnit , contentDescription = "menu")
-        } , actions = {} )
+            TooltipBox(
+                positionProvider =
+                    TooltipDefaults.rememberTooltipPositionProvider(
+                        TooltipAnchorPosition.Above
+                    ),
+                tooltip = { PlainTooltip { Text("Menu") } },
+                state = rememberTooltipState(),
+            ) {
+                IconButton(onClick = { onOpenDrawer() }) {
+                    Icon(imageVector = Icons.Filled.Menu, contentDescription = "Menu")
+                }
+            }
+        },
+            actions = {
+                TooltipBox(
+                    positionProvider =
+                        TooltipDefaults.rememberTooltipPositionProvider(
+                            TooltipAnchorPosition.Above
+                        ),
+                    tooltip = { PlainTooltip { Text("Add to favorites") } },
+                    state = rememberTooltipState(),
+                ) {
+                    IconButton(onClick = { /* doSomething() */ }) {
+                        Icon(
+                            imageVector = Icons.Filled.Favorite,
+                            contentDescription = "Add to favorites",
+                        )
+                    }
+                }
+            })
     }
 }
 @Composable
@@ -94,7 +131,13 @@ fun WeatherBottomNav(
                 NavigationBarItem(
                     selected = selectedDestination == index,
                     onClick = {
-                        navController.navigate(route = destination.route)
+                        navAndPopUpTo(
+                            navHostController = navController,
+                            route = destination.route,
+                            clearBackStack = true,
+                            popUpRoute = WeatherDestinations.ARTICLE_MAIN_ROUTE
+                        )
+//                        navController.navigate(route = destination.route)
                         onSelectedChange(index)
 //                        selectedDestination = index
                     },

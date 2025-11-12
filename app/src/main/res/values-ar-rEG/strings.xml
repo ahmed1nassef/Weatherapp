@@ -5,4 +5,9 @@
     <string name="bookmarks_screen_lable">Bookmarks</string>
     <string name="settings_screen_lable">Settings</string>
     <string name="splash_screen_lable">Splash</string>
+    <string name="tasks_header_image_content_description">article header description</string>
+    <string name="navigation_view_header_title">Articles</string>
+    <string name="home">Home</string>
+    <string name="book_marked">BookMarked</string>
+    <string name="settings_screen">Settings</string>
 </resources>

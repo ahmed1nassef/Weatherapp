@@ -1,7 +1,18 @@
 package com.nassef.domain.entities
 
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+
+@Entity(tableName = "articles")
 data class Article(
-    val articles: List<ArticleX>,
-    val status: String,
-    val totalResults: Int
+    @PrimaryKey(autoGenerate = true) val id : Int = -1,
+    val author: String?,
+    val content: String?,
+    val description: String?,
+    val publishedAt: String?,
+    val source: Source,
+    val title: String,
+    val url: String,
+    val urlToImage: String?,
+    val isBookMarked : Boolean = false
 )

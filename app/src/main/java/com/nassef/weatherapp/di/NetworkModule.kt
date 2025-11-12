@@ -1,5 +1,12 @@
 package com.nassef.weatherapp.di
 
+import com.nassef.core.data.repository.remote.ApiService
+import com.nassef.core.data.repository.remote.RetrofitNetworkProvider
+import com.nassef.core.domain.repository.remote.INetworkProvider
+import com.nassef.data.features.getArticles.repository.remote.ArticleRemoteAs
+import com.nassef.data.features.getArticles.repository.remote.IArticlesRemoteAS
+import com.nassef.data.features.searchArticls.repository.remote.ISearchRemoteAS
+import com.nassef.data.features.searchArticls.repository.remote.SearchRemoteAS
 import com.nassef.data.network.ArticlesApi
 import com.nassef.weatherapp.utils.Constants
 import com.nassef.data.network.interceptors.APIKeyInterceptor
@@ -67,5 +74,13 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideCacheInterceptor(): CacheInterceptor = CacheInterceptor()
+
+    @Provides
+    @Singleton
+    fun provideArticleRemoteAS(provider: INetworkProvider): IArticlesRemoteAS = ArticleRemoteAs(provider)
+    @Provides
+    @Singleton
+    fun provideSearchArticleRemoteAS(provider: INetworkProvider): ISearchRemoteAS =
+        SearchRemoteAS(provider)
 
 }

@@ -5,9 +5,9 @@ import androidx.room.RoomDatabase
 import androidx.room.TypeConverters
 import com.nassef.data.utilities.DbTypeConverters
 //import com.nassef.data.entities.Article
-import com.nassef.domain.entities.ArticleX
+import com.nassef.domain.entities.Article
 
-@Database(entities = [ArticleX::class] , version = 1 , exportSchema = false)
+@Database(entities = [Article::class] , version = 2 , exportSchema = false)
 @TypeConverters(DbTypeConverters::class)
 abstract class ArticleDatabase : RoomDatabase() {
     abstract fun articleDao() : ArticleDao
