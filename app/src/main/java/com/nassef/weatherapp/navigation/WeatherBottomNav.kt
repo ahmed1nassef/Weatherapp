@@ -2,22 +2,30 @@ package com.nassef.weatherapp.navigation
 
 
 import androidx.compose.foundation.layout.padding
+import androidx.compose.foundation.layout.size
 import androidx.compose.material.icons.Icons
 import androidx.compose.material.icons.filled.AcUnit
 import androidx.compose.material.icons.filled.AddCircle
+import androidx.compose.material.icons.filled.Check
 import androidx.compose.material.icons.filled.Favorite
 import androidx.compose.material.icons.filled.Home
+import androidx.compose.material.icons.filled.Lock
 import androidx.compose.material.icons.filled.Menu
 import androidx.compose.material.icons.filled.Settings
+import androidx.compose.material.icons.outlined.Lock
 import androidx.compose.material3.ExperimentalMaterial3Api
+import androidx.compose.material3.FilledIconToggleButton
 import androidx.compose.material3.Icon
 import androidx.compose.material3.IconButton
+import androidx.compose.material3.IconToggleButton
 import androidx.compose.material3.NavigationBar
 import androidx.compose.material3.NavigationBarDefaults
 import androidx.compose.material3.NavigationBarItem
 import androidx.compose.material3.PlainTooltip
 import androidx.compose.material3.Scaffold
 import androidx.compose.material3.SnackbarHostState
+import androidx.compose.material3.Switch
+import androidx.compose.material3.SwitchDefaults
 import androidx.compose.material3.Text
 import androidx.compose.material3.TooltipAnchorPosition
 import androidx.compose.material3.TooltipBox
@@ -79,6 +87,8 @@ fun WeatherTopBar(
     isShowTopBar: Boolean,
     selectedDestination: Int,
     navController: NavHostController,
+    checked : Boolean = false,
+    onChangeLangClicked: (Boolean) -> Unit,
     onOpenDrawer: () -> Unit
 ){
     if(isShowTopBar){
@@ -107,12 +117,20 @@ fun WeatherTopBar(
                     tooltip = { PlainTooltip { Text("Add to favorites") } },
                     state = rememberTooltipState(),
                 ) {
-                    IconButton(onClick = { /* doSomething() */ }) {
-                        Icon(
-                            imageVector = Icons.Filled.Favorite,
-                            contentDescription = "Add to favorites",
-                        )
-                    }
+                    Switch(
+                        checked = checked,
+                        onCheckedChange = { onChangeLangClicked(!checked) },
+                        thumbContent = {
+                            if (checked) {
+                                // Icon isn't focusable, no need for content description
+                                Icon(
+                                    imageVector = Icons.Filled.Check,
+                                    contentDescription = null,
+                                    modifier = Modifier.size(SwitchDefaults.IconSize),
+                                )
+                            }
+                        }
+                    )
                 }
             })
     }

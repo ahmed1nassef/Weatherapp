@@ -22,6 +22,10 @@ import androidx.compose.ui.Modifier
 import androidx.hilt.lifecycle.viewmodel.compose.hiltViewModel
 import androidx.navigation.compose.currentBackStackEntryAsState
 import androidx.navigation.compose.rememberNavController
+import com.hwasfy.localize.api.LanguageManager
+import com.hwasfy.localize.api.currentAppLanguageCode
+import com.hwasfy.localize.api.currentResolvedLocale
+import com.hwasfy.localize.util.SupportedLocales
 import com.nassef.weatherapp.components.AppModalDrawer
 import com.nassef.weatherapp.navigation.Destination
 import com.nassef.weatherapp.navigation.WeatherBottomNav
@@ -38,8 +42,13 @@ import kotlinx.coroutines.launch
 @Composable
 fun ArticleAppMainScreen(
     modifier: Modifier = Modifier, uiManager: UiManager,
-    viewmodel: LandingScreenViewModel = hiltViewModel()
+    viewmodel: LandingScreenViewModel = hiltViewModel(),
+    changeLang : () -> Unit
 ) {
+    val isToggleButtonChecked = rememberSaveable {
+        mutableStateOf(false)
+    }
+
     val isOpened by viewmodel.isOpened.collectAsState()
     var startDestination = WeatherDestinations.SPLASH_SCREEN_ROUTE
 
@@ -96,7 +105,12 @@ fun ArticleAppMainScreen(
             WeatherTopBar(
                 isShowTopBar = isShowTopBar,
                 selectedDestination = selectedDestination,
-                navController = navController
+                navController = navController,
+                checked = isToggleButtonChecked.value
+                , onChangeLangClicked = {
+                    isToggleButtonChecked.value = it
+                    changeLang()
+                }
             ) {
                 coroutineScope.launch {
                     drawerState.apply {

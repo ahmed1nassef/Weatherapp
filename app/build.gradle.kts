@@ -133,6 +133,10 @@ dependencies {
     //coroutines
     implementation(libs.kotlinx.coroutines.android)
 
+    //localization lib
+    implementation(libs.localizeme)
+//    implementation(project(":localize"))
+
     implementation(project(":domain"))
     implementation(project(":data"))
     implementation(project(":core"))
