@@ -7,8 +7,12 @@ import dagger.hilt.android.HiltAndroidApp
 
 @HiltAndroidApp
 class ArticlesApplication : Application() {
+    override fun onCreate() {
+        super.onCreate()
+    }
     override fun attachBaseContext(base: Context?) {
 //        super.attachBaseContext(base)
-        super.attachBaseContext(LocaleHelper.wrapContext(base!!))
+//        super.attachBaseContext(LocaleHelper.wrapContext(base!!))
+        base?.let { super.attachBaseContext(LocaleHelper.wrapContext(it)) } ?: super.attachBaseContext(base)
     }
 }
