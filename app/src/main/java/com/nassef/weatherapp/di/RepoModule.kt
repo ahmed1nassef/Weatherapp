@@ -1,6 +1,8 @@
 package com.nassef.weatherapp.di
 
+import com.nassef.core.domain.repository.remote.INetworkProvider
 import com.nassef.data.features.deleteArticle.repository.DeleteArticleRepository
+import com.nassef.data.features.getArticles.repository.ArticlesPagingRepository
 import com.nassef.data.features.getArticles.repository.ArticlesRepository
 import com.nassef.data.features.getArticles.repository.remote.IArticlesRemoteAS
 import com.nassef.data.features.getBookMarks.repository.BookMarksRepo
@@ -13,6 +15,7 @@ import com.nassef.data.local.ArticleDao
 import com.nassef.data.network.ArticlesApi
 import com.nassef.data.repository.ArticlesRepositoryImp
 import com.nassef.domain.features.deleteArticle.reposiptory.IdeleteArticletRepo
+import com.nassef.domain.features.getArticles.repository.IArticlesPaginRepository
 import com.nassef.domain.features.getArticles.repository.IArticlesRepository
 import com.nassef.domain.features.getBookMarks.repository.IbookMarksRepo
 import com.nassef.domain.features.saveArticle.repository.ISaveArticleRepo
@@ -53,6 +56,10 @@ object RepoModule {
     @Provides
     fun provideDeleteArticleRepo(dao: ArticleDao): IdeleteArticletRepo =
         DeleteArticleRepository(dao)
+
+    @Provides
+    fun provideGetPagingArticlesRepo(provider: INetworkProvider): IArticlesPaginRepository =
+        ArticlesPagingRepository(provider)
 
 }
 

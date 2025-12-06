@@ -26,17 +26,17 @@ import androidx.compose.ui.text.font.FontStyle
 import androidx.compose.ui.text.style.TextOverflow
 import androidx.compose.ui.unit.dp
 import coil3.compose.AsyncImage
-import com.nassef.domain.entities.Article
 import com.nassef.weatherapp.R
+import com.nassef.weatherapp.mappers.ArticleUiModel
 
 @Composable
 fun ArticleRow(
     modifier: Modifier,
-    article: Article,
+    article: ArticleUiModel,
     onArticleClick: () -> Unit,
     onBookMarkClick: () -> Unit
 ) {
-    val articleBookMarkIcon = if (article.isBookMarked) Icons.Default.AddTask else Icons.Default.Add
+    val articleBookMarkIcon = if (article.isBookmarked) Icons.Default.AddTask else Icons.Default.Add
     Card(
         modifier = modifier
             .fillMaxSize()
@@ -68,13 +68,11 @@ fun ArticleRow(
                 Row(modifier = modifier.fillMaxWidth()) {
                     Text(modifier = modifier.padding(5.dp), text = article.source.name, color = Color.Gray)
                     Text(modifier = modifier.padding(5.dp), text = "• ", color = Color.Gray)
-                    article.publishedAt?.let {
-                        Text(
-                            modifier = modifier.padding(5.dp),
-                            text = it,
-                            color = Color.Gray
-                        )
-                    }
+                    Text(
+                        modifier = modifier.padding(5.dp),
+                        text = article.formattedDate,
+                        color = Color.Gray
+                    )
                 }
                 Text(
                     modifier = modifier.padding(5.dp),
@@ -89,7 +87,6 @@ fun ArticleRow(
                 ) {
                     Text(modifier = modifier.padding(5.dp), text = "5 min read")
                     IconButton(onClick = {
-//                        viewModel.addArticleToBookMarks(article)
                         onBookMarkClick()
                     }) {
                         Icon(imageVector = articleBookMarkIcon, contentDescription = "add bookmark")

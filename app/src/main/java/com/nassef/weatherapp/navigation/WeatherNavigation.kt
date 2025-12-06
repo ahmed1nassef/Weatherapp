@@ -17,9 +17,10 @@ import com.nassef.weatherapp.navigation.WeatherDistArgs.ARTICLE_ID_NAV_ARG
 import com.nassef.weatherapp.navigation.WeatherDistArgs.ARTICLE_URL_NAV_ARG
 import com.nassef.weatherapp.screens.articleDeatilsScreen.ArticleDetailsScreen
 import com.nassef.weatherapp.screens.bookMarksScreen.BookMarksScreen
-import com.nassef.weatherapp.screens.mainScreen.MainScreen
+//import com.nassef.weatherapp.screens.mainScreen.MainScreen
 import com.nassef.weatherapp.screens.SettingsScreen
 import com.nassef.weatherapp.screens.landingScreen.SplashScreen
+import com.nassef.weatherapp.screens.pagedMainScreen.MainScreen
 import kotlinx.coroutines.CoroutineScope
 import java.net.URLDecoder
 

@@ -1,11 +1,16 @@
-package com.nassef.weatherapp.screens.mainScreen
+package com.nassef.weatherapp.screens.pagedMainScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.PagingData
+import androidx.paging.cachedIn
+import androidx.paging.map
 import com.nassef.core.data.model.Resource
 import com.nassef.domain.entities.Article
+import com.nassef.domain.entities.ArticlesEntity
 import com.nassef.domain.features.deleteArticle.interactor.DeleteArticleByIdUC
 import com.nassef.domain.features.getArticles.interactor.GetArticlesUC
+import com.nassef.domain.features.getArticles.interactor.GetPagingArticlesUC
 import com.nassef.domain.features.getArticles.model.ArticleRequest
 import com.nassef.domain.features.getBookMarks.interecator.GetBookMarksUC
 import com.nassef.domain.features.saveArticle.interactor.SaveArticleUC
@@ -19,9 +24,11 @@ import com.nassef.weatherapp.utils.UiManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
 import kotlinx.coroutines.delay
+import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.MutableStateFlow
 import kotlinx.coroutines.flow.StateFlow
 import kotlinx.coroutines.flow.combine
+import kotlinx.coroutines.flow.map
 import kotlinx.coroutines.flow.stateIn
 import kotlinx.coroutines.launch
 import javax.inject.Inject
@@ -31,12 +38,14 @@ data class UiState(
     val isRefreshing: Boolean = false,
     val articles: List<ArticleUiModel> = emptyList(),
     val error: String? = null,
-    val category: Int = defaultCategory
+    val category: Int = defaultCategory,
+    val isBookMarksLoaded: Boolean = false
 )
 
 @HiltViewModel
-class UpgradedMainScreenViewModel @Inject constructor(
+class PagingMainScreenViewMode @Inject constructor(
     private val useCase: GetArticlesUC,
+    private val pagingUseCase: GetPagingArticlesUC,
     private val saveUseCase: SaveArticleUC,
     private val searchArticleUseCase: SearchArticleUC,
     private val bookMarkedArticleUseCase: GetBookMarksUC,
@@ -44,6 +53,7 @@ class UpgradedMainScreenViewModel @Inject constructor(
     private val uiManager: UiManager,
     private val articleUiMapper: ArticleUiMapper
 ) : ViewModel() {
+
     private val _isLoading = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
     private val _articlesList = MutableStateFlow<List<Article>>(emptyList())
@@ -52,6 +62,20 @@ class UpgradedMainScreenViewModel @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     private val _category = MutableStateFlow<Int>(defaultCategory)
     private var _searchJob: Job? = null
+    val articles: Flow<PagingData<List<ArticleUiModel>>> =
+        pagingUseCase.invoke(ArticleRequest(countryCode = "us"))
+            .cachedIn(viewModelScope).map { pagingData ->
+                pagingData.map { articlesEntity ->
+                    articlesEntity.articles.map {
+                        articleUiMapper.toUiModel(
+                            it,
+                            _bookMarkedArticles.value
+                        )
+                    }
+
+                }
+            }
+
 
     val uiState: StateFlow<UiState> =
         combine(
@@ -66,7 +90,8 @@ class UpgradedMainScreenViewModel @Inject constructor(
                 isLoading = isLoading,
                 articles = uiArticles,
                 error = error,
-                category = category
+                category = category,
+                isBookMarksLoaded = bookmarkedArticles.isNotEmpty()
             )
         }.combine(_isRefreshing) { uiStateValue, isRefreshing ->
             UiState(
@@ -74,7 +99,8 @@ class UpgradedMainScreenViewModel @Inject constructor(
                 isRefreshing = isRefreshing,
                 articles = uiStateValue.articles,
                 error = uiStateValue.error,
-                category = uiStateValue.category
+                category = uiStateValue.category,
+                isBookMarksLoaded = uiStateValue.isBookMarksLoaded
             )
         }.stateIn(
             scope = viewModelScope,
@@ -103,6 +129,7 @@ class UpgradedMainScreenViewModel @Inject constructor(
         }
     }
 
+
     private fun getBookMarkedArticles() {
         bookMarkedArticleUseCase.invoke(scope = viewModelScope, body = null) {
             when (it) {
@@ -110,8 +137,8 @@ class UpgradedMainScreenViewModel @Inject constructor(
                 is Resource.Progress -> _isLoading.value = it.loading
                 is Resource.Success -> {
                     _bookMarkedArticles.value = it.model
-                    if (_articlesList.value.isEmpty())
-                        getAllArticles()
+//                    if (_articlesList.value.isEmpty())
+//                        getAllArticles()
                 }
             }
         }
@@ -177,7 +204,7 @@ class UpgradedMainScreenViewModel @Inject constructor(
         getAllArticles()
     }
 
-    fun searchCategory(searchQuary: String , categoryId: Int) {
+    fun searchCategory(searchQuary: String, categoryId: Int) {
         _category.value = categoryId
         if (categoryId == defaultCategory) {
             getAllArticles()

@@ -1,6 +1,7 @@
 package com.nassef.data.repository
 
 import com.nassef.data.local.ArticleDao
+import com.nassef.data.local.ArticleEntityMapper
 import com.nassef.data.network.ArticlesApi
 import com.nassef.domain.entities.Article
 import com.nassef.domain.repository.IarticlesRepository
@@ -38,7 +39,8 @@ class ArticlesRepositoryImp(val articlesApi: ArticlesApi, val articleDao: Articl
     }
 
     override suspend fun upsertArticle(article: Article) {
-        articleDao.upsertArticle(article)
+        val entity = ArticleEntityMapper.toEntity(article)
+        articleDao.upsertArticle(entity)
     }
 
     override suspend fun upsertAllArticle(article: List<Article>) {

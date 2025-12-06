@@ -8,16 +8,11 @@ import java.lang.reflect.Type
 
 class DbTypeConverters {
     @TypeConverter
-    fun fromSource(source: Source) : String= Gson().toJson(source)
-
-//    @TypeConverter
-//    fun toSource(sourceJson: String) : Source = Gson().fromJson(sourceJson , Source::class.java)
+    fun fromSource(source: Source): String = Gson().toJson(source)
 
     @TypeConverter
-    fun toSource(sourceJson: String) : Source {
-        // 💡 FIX: Use TypeToken to get the correct Type object for Gson
+    fun toSource(sourceJson: String): Source {
         val type: Type = object : TypeToken<Source>() {}.type
-
         return Gson().fromJson(sourceJson, type)
     }
 }

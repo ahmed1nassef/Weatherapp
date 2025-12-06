@@ -8,7 +8,8 @@ import com.nassef.domain.features.deleteArticle.interactor.DeleteArticleByIdUC
 import com.nassef.domain.features.getBookMarks.interecator.GetBookMarksUC
 import com.nassef.domain.utilities.WhileUiSubscribed
 import com.nassef.domain.utilities.defaultCategory
-import com.nassef.weatherapp.utils.TimeFormatter
+import com.nassef.weatherapp.mappers.ArticleUiMapper
+import com.nassef.weatherapp.mappers.ArticleUiModel
 import com.nassef.weatherapp.utils.UiManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -20,7 +21,7 @@ import javax.inject.Inject
 data class UiState(
     val isLoading: Boolean = false,
     val isRefreshing: Boolean = false,
-    val articles: List<Article> = emptyList(),
+    val articles: List<ArticleUiModel> = emptyList(),
     val error: String? = null,
     val category: Int = defaultCategory,
     val isArticleAdded: Boolean = false,
@@ -32,7 +33,7 @@ class BookMarksViewModel @Inject constructor(
     private val useCase: GetBookMarksUC,
     private val deleteUseCase: DeleteArticleByIdUC,
     private val uiManager: UiManager,
-    private val timeFormatter: TimeFormatter
+    private val articleUiMapper: ArticleUiMapper
 ) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
@@ -44,21 +45,15 @@ class BookMarksViewModel @Inject constructor(
 
     val uiState = combine(
         _isLoading, _isRefreshing, _articlesList, _error, _category
-    ) { isLoading, isRefreshing, rawArticle, error, category ->
-        val updatedArticles = rawArticle.map {
-            var formatedDate = it.publishedAt?.let {
-                timeFormatter.convertIsoToRelativeTime(isoTime = it)
-            } ?: "Unknown Time"
-            it.copy(publishedAt = formatedDate)
-        }
+    ) { isLoading, isRefreshing, articles, error, category ->
+        val uiArticles = articleUiMapper.toUiModelList(articles, articles)
         UiState(
             isLoading = isLoading,
             isRefreshing = isRefreshing,
-            articles = updatedArticles,
+            articles = uiArticles,
             error = error,
             category = category,
         )
-
     }.stateIn(scope = viewModelScope, started = WhileUiSubscribed, initialValue = UiState())
 
     init {

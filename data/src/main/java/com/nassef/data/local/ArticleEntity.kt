@@ -1,7 +1,12 @@
-package com.nassef.domain.entities
+package com.nassef.data.local
 
-data class Article(
-    val id: Int = -1,
+import androidx.room.Entity
+import androidx.room.PrimaryKey
+import com.nassef.domain.entities.Source
+
+@Entity(tableName = "articles")
+data class ArticleEntity(
+    @PrimaryKey(autoGenerate = true) val id: Int = -1,
     val author: String?,
     val content: String?,
     val description: String?,

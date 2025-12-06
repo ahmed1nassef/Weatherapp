@@ -48,53 +48,32 @@ dependencies {
     implementation(libs.hilt.android)
     ksp(libs.hilt.android.compiler)
 
-    //retrofit
-    implementation(libs.retrofit)
-    implementation(libs.retrofit)
-//    implementation(libs.converter.name)
+    // Retrofit
     implementation(libs.retrofit)
     implementation(libs.converter.gson)
-//    implementation(libs.logging.interceptor)
 
-    //room
-    val room_version = "2.8.3"
-
+    // Room - only what we need
     implementation(libs.androidx.room.runtime)
-
-    // If this project uses any Kotlin source, use Kotlin Symbol Processing (KSP)
-    // See Add the KSP plugin to your project
+    implementation(libs.androidx.room.ktx) // Coroutines support
     ksp(libs.androidx.room.compiler)
 
-    // If this project only uses Java source, use the Java annotationProcessor
-    // No additional plugins are necessary
-    annotationProcessor(libs.androidx.room.compiler)
-
-    // optional - Kotlin Extensions and Coroutines support for Room
-    implementation(libs.androidx.room.ktx)
-
-    // optional - RxJava2 support for Room
-    implementation(libs.androidx.room.rxjava2)
-
-    // optional - RxJava3 support for Room
-    implementation(libs.androidx.room.rxjava3)
-
-    // optional - Guava support for Room, including Optional and ListenableFuture
-    implementation(libs.androidx.room.guava)
-
-    // optional - Test helpers
+    // Test helpers
     testImplementation(libs.androidx.room.testing)
-
-    // optional - Paging 3 Integration
-    implementation(libs.androidx.room.paging)
 
     //coroutines
     implementation(libs.kotlinx.coroutines.android)
 
-//    implementation project(path = ":domain")
     implementation(project(":domain"))
     implementation(project(":core"))
 
-    // data/build.gradle
+    // Gson for JSON serialization
     implementation(libs.gson)
-// Or latest version
+    //Paging 3
+    implementation(libs.androidx.paging.runtime)
+
+    // alternatively - without Android dependencies for tests
+    testImplementation(libs.androidx.paging.common)
+
+    // optional - Jetpack Compose integration
+    implementation(libs.androidx.paging.compose)
 }

@@ -43,12 +43,9 @@ object NetworkModule {
         return OkHttpClient.Builder()
             .connectTimeout(30, TimeUnit.SECONDS)
             .readTimeout(30, TimeUnit.SECONDS)
-//            .addInterceptor(interceptor)
             .addInterceptor(authInterceptor)
-//            .addInterceptor(loggingInterceptor)
             .addInterceptor(retryInterceptor)
             .addInterceptor(cacheInterceptor)
-
             .build()
     }
 
@@ -66,10 +63,6 @@ object NetworkModule {
     @Provides
     @Singleton
     fun provideRetryInterceptor(): RetryInterceptor = RetryInterceptor(Constants.MAX_RETRY_ATTEMPTS)
-
-    /*@Provides
-    @Singleton
-    fun provideAuthInterceptor(): AuthInterceptor = AuthInterceptor()*/
 
     @Provides
     @Named(NEWS_API_KEY_NAME)

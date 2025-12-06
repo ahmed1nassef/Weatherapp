@@ -5,6 +5,8 @@ import com.nassef.domain.features.deleteArticle.interactor.DeleteArticleByIdUC
 import com.nassef.domain.features.deleteArticle.interactor.DeleteArticleUC
 import com.nassef.domain.features.deleteArticle.reposiptory.IdeleteArticletRepo
 import com.nassef.domain.features.getArticles.interactor.GetArticlesUC
+import com.nassef.domain.features.getArticles.interactor.GetPagingArticlesUC
+import com.nassef.domain.features.getArticles.repository.IArticlesPaginRepository
 import com.nassef.domain.features.getArticles.repository.IArticlesRepository
 import com.nassef.domain.features.getBookMarks.interecator.GetBookMarksUC
 import com.nassef.domain.features.getBookMarks.repository.IbookMarksRepo
@@ -87,5 +89,8 @@ object UseCasesModule {
     ): DeleteArticleUC =
         DeleteArticleUC(repo, errorHandler)
 
+    @Provides
+    fun provideGetPagingArticlesUC(repo: IArticlesPaginRepository) : GetPagingArticlesUC =
+        GetPagingArticlesUC(repo)
 
 }

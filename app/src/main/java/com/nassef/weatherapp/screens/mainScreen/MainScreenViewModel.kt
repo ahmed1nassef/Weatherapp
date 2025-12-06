@@ -9,7 +9,8 @@ import com.nassef.domain.useCases.SearchForArticleUseCase
 import com.nassef.domain.utilities.Results
 import com.nassef.domain.utilities.WhileUiSubscribed
 import com.nassef.domain.utilities.defaultCategory
-import com.nassef.weatherapp.utils.TimeFormatter
+import com.nassef.weatherapp.mappers.ArticleUiMapper
+import com.nassef.weatherapp.screens.pagedMainScreen.UiState
 import com.nassef.weatherapp.utils.UiManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Dispatchers
@@ -23,15 +24,13 @@ import kotlinx.coroutines.launch
 import kotlinx.coroutines.withContext
 import javax.inject.Inject
 
-
-
 @HiltViewModel
 class MainScreenViewModel @Inject constructor(
     private val useCase: GetAllArticlesUseCase,
     private val bookMarkUseCase: AddBookMarkedArticleUseCase,
     private val searchUseCase: SearchForArticleUseCase,
     private val uiManager: UiManager,
-    private val timeFormatter: TimeFormatter
+    private val articleUiMapper: ArticleUiMapper
 ) : ViewModel() {
     private val _isLoading = MutableStateFlow(false)
     private val _isRefreshing = MutableStateFlow(false)
@@ -42,26 +41,14 @@ class MainScreenViewModel @Inject constructor(
 
 
     val uiState: StateFlow<UiState> =
-        combine(_isLoading, _articlesList, _error, _category, _isRefreshing) {
-
-//        if (_articlesList.value.isNullOrEmpty().not()) {
-            val updatedList: List<Article> = _articlesList.value.map { articleX ->
-                articleX.apply {
-                    publishedAt?.apply {
-                        timeFormatter.convertIsoToRelativeTime(isoTime = this)
-                    }
-//                    publishedAt = timeFormatter.convertIsoToRelativeTime(isoTime = publishedAt)
-                }
-            }
-//            UiState(_isLoading.value, updatedList, _error.value)
-//        }
-//        UiState(isLoading = _isLoading.value, articles = updatedList, error = _error.value)
+        combine(_isLoading, _articlesList, _error, _category, _isRefreshing) { isLoading, articles, error, category, isRefreshing ->
+            val uiArticles = articleUiMapper.toUiModelList(articles, emptyList())
             UiState(
-                isLoading = _isLoading.value,
-                isRefreshing = _isRefreshing.value,
-                articles = updatedList,
-                error = _error.value,
-                category = _category.value
+                isLoading = isLoading,
+                isRefreshing = isRefreshing,
+                articles = uiArticles,
+                error = error,
+                category = category
             )
         }.stateIn(
             scope = viewModelScope,

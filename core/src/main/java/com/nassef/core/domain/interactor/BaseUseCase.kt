@@ -2,6 +2,7 @@ package com.nassef.core.domain.interactor
 
 import com.nassef.core.data.model.Resource
 import com.nassef.core.domain.error.ErrorHandler
+import kotlinx.coroutines.CoroutineDispatcher
 import kotlinx.coroutines.CoroutineScope
 import kotlinx.coroutines.Dispatchers
 import kotlinx.coroutines.Job
@@ -12,8 +13,11 @@ import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
 
-abstract class BaseUseCase<Domain, in Body>(protected val errorHandler: ErrorHandler)  {
-//    protected val errorHandler: ErrorHandler by inject()
+abstract class BaseUseCase<Domain, in Body>(
+    protected val errorHandler: ErrorHandler,
+    private val ioDispatcher: CoroutineDispatcher = Dispatchers.IO,
+    private val mainDispatcher: CoroutineDispatcher = Dispatchers.Main
+) {
 
     protected fun requireBody(body: Body?): @UnsafeVariance Body =
         body ?: throw IllegalArgumentException("UseCase body is required and was null")
@@ -23,8 +27,8 @@ abstract class BaseUseCase<Domain, in Body>(protected val errorHandler: ErrorHan
     operator fun invoke(
         scope: CoroutineScope, body: Body? = null, multipleInvoke: Boolean = false,
         onResult: (Resource<Domain>) -> Unit
-    ) : Job {
-        return scope.launch(Dispatchers.Main) {
+    ): Job {
+        return scope.launch(mainDispatcher) {
             if (multipleInvoke.not()) onResult.invoke(Resource.Companion.loading())
 
             runFlow(executeDS(body), onResult).collect {
@@ -54,5 +58,5 @@ abstract class BaseUseCase<Domain, in Body>(protected val errorHandler: ErrorHan
     ): Flow<M> = requestExecution.catch { e ->
         onResult(Resource.failure(errorHandler.getError(e)))
         onResult.invoke(Resource.Companion.loading(false))
-    }.flowOn(Dispatchers.IO)
+    }.flowOn(ioDispatcher)
 }
