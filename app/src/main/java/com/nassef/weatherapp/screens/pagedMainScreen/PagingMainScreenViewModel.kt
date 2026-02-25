@@ -2,15 +2,16 @@ package com.nassef.weatherapp.screens.pagedMainScreen
 
 import androidx.lifecycle.ViewModel
 import androidx.lifecycle.viewModelScope
+import androidx.paging.Pager
+import androidx.paging.PagingConfig
 import androidx.paging.PagingData
 import androidx.paging.cachedIn
 import androidx.paging.map
 import com.nassef.core.data.model.Resource
 import com.nassef.domain.entities.Article
-import com.nassef.domain.entities.ArticlesEntity
 import com.nassef.domain.features.deleteArticle.interactor.DeleteArticleByIdUC
 import com.nassef.domain.features.getArticles.interactor.GetArticlesUC
-import com.nassef.domain.features.getArticles.interactor.GetPagingArticlesUC
+import com.nassef.domain.features.getArticles.interactor.GetPaginatedArticlesUC
 import com.nassef.domain.features.getArticles.model.ArticleRequest
 import com.nassef.domain.features.getBookMarks.interecator.GetBookMarksUC
 import com.nassef.domain.features.saveArticle.interactor.SaveArticleUC
@@ -20,6 +21,7 @@ import com.nassef.domain.utilities.WhileUiSubscribed
 import com.nassef.domain.utilities.defaultCategory
 import com.nassef.weatherapp.mappers.ArticleUiMapper
 import com.nassef.weatherapp.mappers.ArticleUiModel
+import com.nassef.weatherapp.paging.ArticlesPagingSource
 import com.nassef.weatherapp.utils.UiManager
 import dagger.hilt.android.lifecycle.HiltViewModel
 import kotlinx.coroutines.Job
@@ -45,7 +47,7 @@ data class UiState(
 @HiltViewModel
 class PagingMainScreenViewMode @Inject constructor(
     private val useCase: GetArticlesUC,
-    private val pagingUseCase: GetPagingArticlesUC,
+    private val getPaginatedArticlesUC: GetPaginatedArticlesUC,
     private val saveUseCase: SaveArticleUC,
     private val searchArticleUseCase: SearchArticleUC,
     private val bookMarkedArticleUseCase: GetBookMarksUC,
@@ -62,19 +64,26 @@ class PagingMainScreenViewMode @Inject constructor(
     private val _error = MutableStateFlow<String?>(null)
     private val _category = MutableStateFlow<Int>(defaultCategory)
     private var _searchJob: Job? = null
-    val articles: Flow<PagingData<List<ArticleUiModel>>> =
-        pagingUseCase.invoke(ArticleRequest(countryCode = "us"))
-            .cachedIn(viewModelScope).map { pagingData ->
-                pagingData.map { articlesEntity ->
-                    articlesEntity.articles.map {
-                        articleUiMapper.toUiModel(
-                            it,
-                            _bookMarkedArticles.value
-                        )
-                    }
 
-                }
+    val articles: Flow<PagingData<ArticleUiModel>> = Pager(
+        config = PagingConfig(
+            pageSize = 20,
+            enablePlaceholders = false
+        ),
+        pagingSourceFactory = {
+            ArticlesPagingSource(
+                useCase = getPaginatedArticlesUC,
+                country = "us",
+                scope = viewModelScope
+            )
+        }
+    ).flow
+        .map { pagingData ->
+            pagingData.map { article ->
+                articleUiMapper.toUiModel(article, _bookMarkedArticles.value)
             }
+        }
+        .cachedIn(viewModelScope)
 
 
     val uiState: StateFlow<UiState> =

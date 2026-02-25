@@ -39,14 +39,6 @@ dependencies {
 
     // Coroutines - Android version includes core
     implementation(libs.kotlinx.coroutines.android)
-    //Paging 3
-    implementation(libs.androidx.paging.runtime)
-
-    // alternatively - without Android dependencies for tests
-    testImplementation(libs.androidx.paging.common)
-
-    // optional - Jetpack Compose integration
-    implementation(libs.androidx.paging.compose)
 
     implementation(project(":core"))
 }

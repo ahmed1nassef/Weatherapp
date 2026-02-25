@@ -9,6 +9,7 @@ import kotlinx.coroutines.Job
 import kotlinx.coroutines.flow.Flow
 import kotlinx.coroutines.flow.catch
 import kotlinx.coroutines.flow.channelFlow
+import kotlinx.coroutines.flow.flow
 import kotlinx.coroutines.flow.flowOn
 import kotlinx.coroutines.launch
 
@@ -41,17 +42,41 @@ abstract class BaseUseCase<Domain, in Body>(
     }
 
     operator fun invoke(
-        body: Body? = null, multipleInvoke: Boolean = false,
-    ): Flow<Resource<Domain>> =
-        channelFlow {
-            if (multipleInvoke.not()) send(Resource.Companion.loading())
-            runFlow(executeDS(body)) {
-                send(it)
-            }.collect {
-                send(Resource.Companion.success(it))
-                if (multipleInvoke.not()) send(Resource.Companion.loading(false))
-            }
+        body: Body? = null, multipleInvoke: Boolean = false, needChannel : Boolean = false
+    ): Flow<Resource<Domain>> {
+        if(needChannel){
+            return runChannelFlow(multipleInvoke, body)
+        } else{
+            return runDirectFlow(multipleInvoke, body)
         }
+
+    }
+
+    private fun runDirectFlow(
+        multipleInvoke: Boolean,
+        body: Body?
+    ): Flow<Resource<Domain>> = flow {
+        if (multipleInvoke.not()) emit(Resource.Companion.loading())
+        runFlow(executeDS(body)) {
+            emit(it)
+        }.collect {
+            emit(Resource.Companion.success(it))
+            if (multipleInvoke.not()) emit(Resource.Companion.loading(false))
+        }
+    }
+
+    private fun runChannelFlow(
+        multipleInvoke: Boolean,
+        body: Body?
+    ): Flow<Resource<Domain>> = channelFlow {
+        if (multipleInvoke.not()) send(Resource.Companion.loading())
+        runFlow(executeDS(body)) {
+            send(it)
+        }.collect {
+            send(Resource.Companion.success(it))
+            if (multipleInvoke.not()) send(Resource.Companion.loading(false))
+        }
+    }
 
     fun <M> runFlow(
         requestExecution: Flow<M>, onResult: suspend (Resource<Domain>) -> Unit

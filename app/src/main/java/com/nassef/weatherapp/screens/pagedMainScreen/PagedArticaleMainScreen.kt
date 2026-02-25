@@ -46,7 +46,7 @@ import androidx.navigation.NavHostController
 import androidx.paging.LoadState
 import androidx.paging.compose.LazyPagingItems
 import androidx.paging.compose.collectAsLazyPagingItems
-import com.nassef.domain.entities.ArticlesEntity
+import androidx.paging.compose.itemKey
 import com.nassef.domain.utilities.categoriesList
 import com.nassef.weatherapp.R
 import com.nassef.weatherapp.components.ArticleRow
@@ -175,7 +175,7 @@ private fun ArticlesSection(
     uiState: UiState,
     viewModel: PagingMainScreenViewMode,
     navController: NavHostController,
-    articles: LazyPagingItems<List<ArticleUiModel>>,
+    articles: LazyPagingItems<ArticleUiModel>,
     isRefreshing: Boolean,
     onRefreshArticles: () -> Unit
 ) {
@@ -226,31 +226,22 @@ private fun ArticlesSection(
             horizontalAlignment = Alignment.CenterHorizontally,
             state = rememberLazyListState()
         ) {
-            val articlesList = articles[0]
-            items(articlesList!!) { article ->
-                ArticleRow(modifier, article, onArticleClick = {
-                    val detailsScreen = WeatherScreens.ARTICLE_DETAILS_SCREEN
-                    val encodedUrl = java.net.URLEncoder.encode(article.url, "UTF-8")
+            items(
+                count = articles.itemCount,
+                key = articles.itemKey { it.url }
+            ) { index ->
+                val article = articles[index]
+                article?.let {
+                    ArticleRow(modifier, it, onArticleClick = {
+                        val detailsScreen = WeatherScreens.ARTICLE_DETAILS_SCREEN
+                        val encodedUrl = java.net.URLEncoder.encode(it.url, "UTF-8")
 
-                    navController.navigate("$detailsScreen/${article.id}/${encodedUrl}")
-                }) {
-                    viewModel.toggleArticleBookMark(article)
-
+                        navController.navigate("$detailsScreen/${it.id}/${encodedUrl}")
+                    }) {
+                        viewModel.toggleArticleBookMark(it)
+                    }
                 }
             }
-            /*items(items = uiState.articles , key = {
-                it.url
-            }) { article ->
-                ArticleRow(modifier, article, onArticleClick = {
-                    val detailsScreen = WeatherScreens.ARTICLE_DETAILS_SCREEN
-                    val encodedUrl = java.net.URLEncoder.encode(article.url, "UTF-8")
-
-                    navController.navigate("$detailsScreen/${article.id}/${encodedUrl}")
-                } ){
-                    viewModel.toggleArticleBookMark(article)
-
-                }
-            }*/
         }
     }
 
